@@ -1,167 +1,140 @@
-🕶️ JEMBPLE – AI Assistive Smart Glasses & Gloves
+# 🕶️ JEMBPLE: AI Assistive Smart Glasses & Gloves
+> **"We Are Leading the Blind"**
 
-“We Are Leading the Blind”
+![Status: Active](https://img.shields.io/badge/Status-Active-success?style=flat-square)
+![Hardware: Integrated](https://img.shields.io/badge/Hardware-Custom_Wearable-blue?style=flat-square)
+![AI: Computer Vision](https://img.shields.io/badge/AI-Computer_Vision-orange?style=flat-square)
+![Sensors: LiDAR](https://img.shields.io/badge/Sensors-LiDAR-lightgrey?style=flat-square)
 
 An AI-powered wearable system designed to help blind and visually impaired individuals navigate the world independently using real-time audio and haptic feedback.
 
-📌 Project Overview
+## 🌍 Why This Matters
+According to the World Health Organization, over **2.2 billion people** experience visual impairment globally. While existing tools like white canes and guide dogs are invaluable, they have physical limitations. JEMBPLE expands these capabilities using modern AI to understand environments, identify objects, and provide contextual guidance—increasing independence, safety, and confidence in everyday life.
 
-JEMBPLE is an assistive technology system built around smart glasses and wearable accessories (gloves / feedback modules) that enhance environmental awareness for blind and low-vision users.
+---
 
-The system combines:
+## 🎯 Core Features
 
-👁️ Computer Vision
-📡 LiDAR sensing
-🧠 AI-based object recognition
-🔊 Audio + vibration feedback
+* **🚌 Smart Navigation:** Detects buses, reads route numbers, and identifies safe moments to use crosswalks.
+* **🛒 Daily Independence:** Reads product labels, prices, and scans menus (removing the reliance on braille-only options).
+* **🚧 Obstacle Detection:** Identifies both static and moving obstacles, alerting users *before* a collision occurs.
+* **🍳 Cooking Assistance:** Recognizes food states (e.g., raw → cooked → burnt) to provide real-time culinary feedback.
+* **🧭 Environmental Awareness:** Reads environmental text like bathroom signs, street names, and house numbers, describing the surroundings in real time.
 
-to transform visual information into real-time, understandable feedback.
+---
 
-The goal is simple:
+## 🧠 Technical Architecture
 
-Increase independence, safety, and confidence in everyday life.
+JEMBPLE is divided into three distinct modules to distribute weight, optimize compute power, and maximize user comfort.
 
-🌍 Why This Matters
+### 1. Sensing Module (Glasses)
+* **📷 AI Camera:** Captures high-resolution, real-time visual data.
+* **📡 LiDAR Sensor:** Provides precise depth mapping and distance measurement.
 
-According to the World Health Organization, over 2.2 billion people experience visual impairment globally .
+### 2. Processing Module (External/Wearable Compute Unit)
+* **Microcontroller:** Handles routing, object detection, OCR (Optical Character Recognition), and AI inference.
+* **Hybrid Processing:** Prioritizes local processing for fast (<150ms) emergency responses, falling back to cloud processing for complex scene analysis.
 
-Existing tools like:
+### 3. Feedback Module (Output)
+* **🎧 Audio:** Bone conduction headphones deliver clear text-to-speech without blocking ambient environmental sounds.
+* **📳 Haptics:** Vibration feedback (via gloves or localized motors) provides silent, intuitive directional cues.
 
-White canes
-Guide dogs
+---
 
-are helpful — but limited.
+## ⚙️ System Flow in Action
 
-JEMBPLE expands these capabilities using AI to:
+**Scenario: Reading a Price Label**
+> 1️⃣ User taps glasses or uses voice wake-word ("Read this").
+> 2️⃣ Camera captures the image.
+> 3️⃣ OCR extracts the text and AI processes the relevant info.
+> 4️⃣ Text-to-speech outputs: *"Apple Juice, $3.99."*
 
-Understand environments
-Identify objects
-Provide contextual guidance
-🎯 Core Features
-🚌 Smart Navigation
-Detects buses and reads route numbers
-Identifies crosswalks and safe crossing moments
-🛒 Daily Independence
-Reads product labels and prices
-Scans menus (even without braille)
-🚧 Obstacle Detection
-Detects static & moving obstacles
-Alerts users before collisions
-🍳 Cooking Assistance
-Recognizes food states (raw → cooked → burnt)
-Gives real-time cooking feedback
-🧭 Environmental Awareness
-Reads signs (bathrooms, street names, house numbers)
-Describes surroundings in real time
-⚙️ How It Works (System Flow)
-Example: Reading a Price Label
-User taps glasses or says “Read this”
-Camera captures image
-OCR extracts text
-AI processes relevant info
-Text-to-speech outputs result
-Example: Bus Detection
-Continuous scanning
-Object detection finds bus
-OCR reads number
-Audio: “Bus 42 approaching”
-Example: Cooking Assistance
-Camera observes food
-AI classifies state
-Audio: “The onions are golden brown”
-🧠 Technical Architecture
+**Scenario: Bus Detection**
+> 1️⃣ System continuously scans the environment.
+> 2️⃣ Object detection identifies an approaching bus.
+> 3️⃣ OCR reads the LED route number.
+> 4️⃣ Audio alerts: *"Bus 42 approaching."*
 
-The system is divided into 3 main modules:
+---
 
-1. Sensing Module (Glasses)
-📷 AI Camera
-📡 LiDAR sensor
-Captures real-time environmental data
-2. Processing Module (External)
-Microcontroller / compute unit
-Handles:
-Object detection
-OCR
-AI inference
-Can use hybrid processing:
-Local → fast responses
-Cloud → complex analysis
-3. Feedback Module
-🎧 Bone conduction headphones
-📳 Vibration feedback (gloves / motors)
+## 🔌 Hardware Specifications
 
-➡️ This separation reduces weight on the glasses and improves comfort
+| Component | Function | Notes |
+| :--- | :--- | :--- |
+| **LiDAR Sensor** | Distance & obstacle detection | ~3 cm error margin |
+| **AI Camera** | Object & text recognition | Optimized for low latency |
+| **Microcontroller** | Core data processing | Handles local AI/OCR pipelines |
+| **Powerbank** | Power supply | 27,000 mAh (approx. 8–10 hours usage) |
+| **Headphones** | Audio feedback | Bone conduction for situational awareness |
+| **Vibration Motors** | Haptic feedback | Integrated into gloves/wearables |
 
-🔌 Hardware Overview
-Component	Function
-LiDAR Sensor	Distance & obstacle detection
-AI Camera	Object & text recognition
-Microcontroller	Data processing
-Powerbank (27,000 mAh)	Power supply
-Bone Conduction Headphones	Audio feedback
-Vibration Motor / Gloves	Haptic feedback
-⚡ Performance
-⏱️ Latency: <150ms (local processing)
-🔋 Battery: 8–10 hours usage
-📏 LiDAR accuracy: ~3 cm error margin
-🧪 Testing
+---
 
-The system was tested across multiple scenarios:
+## 🧪 Testing & Performance
 
-Key Test Cases
-ID	Test	Priority
-TC-01	Static obstacle detection	High
-TC-02	Moving obstacle detection	High
-TC-03	Object recognition	High
-TC-04	Low-light performance	Medium
-TC-05	Battery performance	Medium
-TC-06	Connectivity	Medium
-TC-07	Failure handling	High
-TC-08	Text recognition	Medium
-TC-09	System startup	High
-TC-10	Usability	High
-Example Result
-Obstacles detected reliably within safe distance
-Audio warnings delivered clearly and on time
-⚠️ Challenges & Limitations
-Low-light affects camera performance
-Reflective surfaces impact LiDAR
-Cloud processing introduces latency
-Battery life vs performance trade-offs
-Risk of user overstimulation (too much feedback)
-👥 Team
-Name	Role
-Bart	Consultant / Mediator
-Ebenezer	Planner
-Julian	Implementer / Secretary
-Mae	Creative
-Penelope	Chairman / Quality Lead
-Larry	Specialist / Finisher
-Esmee	Manager / Team Leader
-🤝 Code of Conduct
-Be responsible, respectful, and communicative
-Ask for help when needed
-Solve problems together as a team
-🔧 Development & Git Workflow
-Structured branching (main / feature / bugfix)
-Clean commit history
-Pull requests & code reviews
-Organized repository structure
-🚀 Future Improvements
-Better low-light vision models
-Faster on-device AI processing
-Improved battery efficiency
-Smarter feedback filtering (reduce overload)
-Enhanced wearable integration (gloves + glasses synergy)
-💡 Vision
+The system is rigorously tested across multiple scenarios to ensure safety and reliability.
 
-JEMBPLE is more than a project — it’s a step toward:
+* **Latency:** < 150ms (for local processing)
+* **Battery Life:** 8–10 hours of active usage
 
-A world where blindness does not limit independence.
+### Key Test Cases
+| ID | Test Scenario | Priority | Expected Outcome |
+| :--- | :--- | :--- | :--- |
+| `TC-01` | Static obstacle detection | **High** | Detected reliably within a safe stopping distance. |
+| `TC-02` | Moving obstacle detection | **High** | Real-time tracking with predictive warnings. |
+| `TC-03` | Object recognition | **High** | Fast identification of everyday items. |
+| `TC-04` | Low-light performance | Medium | Maintains basic LiDAR functionality if vision drops. |
+| `TC-07` | Failure handling | **High** | Fails safely; alerts user if sensors are blocked. |
 
-If you want, I can also:
+> ⚠️ **Current Limitations:** Low-light environments currently affect camera performance. Highly reflective surfaces can occasionally scatter LiDAR readings. We are actively working on filtering algorithms to prevent "user overstimulation" (too much feedback at once).
 
-Add badges (GitHub style)
-Create a cool project logo/banner
-Add installation/setup section (code-based)
-Or make it match your anti-procrastination project aesthetic
+---
+
+## 🚀 Future Roadmap
+- [ ] Implement better low-light vision models.
+- [ ] Optimize on-device AI for even faster processing without the cloud.
+- [ ] Improve battery efficiency and reduce component weight.
+- [ ] Develop smarter feedback filtering to prioritize critical alerts (reducing audio/haptic overload).
+- [ ] Enhance synergy between the glasses and the haptic gloves.
+
+---
+
+## 👥 The Team
+
+| Name | Role |
+| :--- | :--- |
+| **Penelope** | Chairman / Quality Lead |
+| **Esmee** | Manager / Team Leader |
+| **Bart** | Consultant / Mediator |
+| **Ebenezer** | Planner |
+| **Julian** | Implementer / Secretary |
+| **Mae** | Creative |
+| **Larry** | Specialist / Finisher |
+
+---
+
+## 🤝 Contributing & Workflow
+
+**Code of Conduct:** Be responsible, respectful, and communicative. Ask for help when needed, and solve problems together as a team.
+
+**Development Workflow:**
+1. Structured branching (`main` / `feature/your-feature` / `bugfix/issue`).
+2. Maintain a clean, descriptive commit history.
+3. All merges to `main` require Pull Requests and code reviews.
+
+---
+
+## 💻 Installation & Setup (Placeholder)
+*(Add your specific hardware flashing instructions or software dependencies here)*
+
+```bash
+# Example: Clone the repository
+git clone [https://github.com/your-org/jembple.git](https://github.com/your-org/jembple.git)
+cd jembple
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Run the local testing environment
+python main.py --mode debug
+```
