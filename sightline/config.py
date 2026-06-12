@@ -54,7 +54,13 @@ DEFAULTS: dict[str, Any] = {
         "backend": "auto",          # auto | tflite | ultralytics | hailo
         "model": "models/ssd_mobilenet_v2_coco_quant.tflite",  # used by tflite backend
         "labels": "models/coco_labels.txt",
+        # ultralytics (YOLO) model. yolov8n.pt = 80 COCO classes; swap in
+        # yolov8s-oiv7.pt for ~600 Open Images classes (a lot more objects).
         "ultralytics_model": "yolov8n.pt",   # auto-downloads on first run (x86 laptops)
+        "open_vocab": [],           # non-empty => YOLO-World detects these named classes
+        "world_model": "yolov8s-world.pt",   # the open-vocabulary model (needs `clip`)
+        "imgsz": 0,                 # inference size; 0 = model default. lower = faster
+        "threaded": False,          # run detection on a background thread (smoother)
         "threshold": 0.5,
         "announce_classes": [],     # empty => announce everything above threshold
     },

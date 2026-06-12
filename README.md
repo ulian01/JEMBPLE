@@ -13,7 +13,7 @@ If you just want to use the device, read USE.md. For the technical design, read 
 
 | Capability | What you get | Where it runs |
 | --- | --- | --- |
-| Object detection | Names of nearby objects and roughly where they are, such as "a person, to your left, close" | On device |
+| Object detection | Names of nearby objects and roughly where they are, such as "a person, to your left, close". Configurable vocabulary, from 80 common classes up to about 600, or your own named objects | On device |
 | Face recognition | Names of people you have enrolled, such as "I see Mum, ahead" | On device |
 | Text reader (OCR) | Signs, mail, labels, and menus read aloud | Claude vision, EasyOCR, or Tesseract |
 | Scene description | A short spoken summary of the whole scene | Off device (Claude) |
@@ -55,7 +55,7 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-Object-detection model: the Pi profile uses a TFLite model. See models/README.md for the one-line download.
+Object detection: the Pi profile uses YOLO via ultralytics with the nano Open Images model (about 600 object classes), which auto-downloads on first run (about 7 MB). Install it with `pip install ultralytics`. For a lighter, no-torch footprint you can switch to the TFLite backend (80 COCO classes) in config.yaml; see models/README.md for that model.
 
 Scene description and the most accurate text reader use Claude, so set your key:
 
@@ -104,7 +104,7 @@ Useful knobs in config.laptop.yaml:
 
 - camera.source: 0 for the default webcam, or a path to a video or image to test against a fixed clip.
 - display.preview: true shows the annotated window. Press q to quit.
-- object_detection.backend: ultralytics uses YOLO and downloads yolov8n.pt on first run.
+- object_detection: the laptop profile uses yolov8s-oiv7.pt, a YOLO model with about 600 Open Images classes, so it names far more objects than the 80-class COCO default. Lower imgsz (for example 416) for speed, set threaded to keep detection off the camera loop, or list your own classes under open_vocab to detect anything by name.
 - scene.model and ocr.model: drop to claude-haiku-4-5 for faster, cheaper local testing.
 - scene.style: succinct gives terse fragments, full gives short sentences.
 

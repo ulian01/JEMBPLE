@@ -8,10 +8,15 @@ sounddevice              # low-latency spatial audio (optional; falls back to ap
 #   sudo apt install -y python3-picamera2
 # On a dev laptop the OpenCV webcam fallback is used instead.
 
-# Demo 1 & 5 — object / obstacle detection
-# Pick ONE backend:
-tflite-runtime           # Pi: slim TFLite interpreter (needs the COCO model file)
-# ultralytics            # Laptop/x86: YOLO, auto-downloads weights, no model setup
+# Demo 1 and 5: object / obstacle detection.
+# Default backend for both the Pi and laptop profiles is YOLO via ultralytics.
+# It auto-downloads its weights; the profiles use an Open Images model (~600
+# classes). Open-vocabulary mode (YOLO-World) also pulls in `clip`, which
+# ultralytics installs on first use.
+ultralytics
+# Lighter alternative for the Pi (no torch): TFLite SSD-MobileNet, 80 COCO
+# classes. Set object_detection.backend to tflite and install:
+# tflite-runtime           # slim TFLite interpreter (needs the COCO model file)
 
 # Demo 2 — face recognition
 face_recognition         # pulls in dlib; on Pi: sudo apt install -y cmake first

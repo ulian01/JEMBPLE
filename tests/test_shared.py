@@ -12,14 +12,16 @@ cv2 = pytest.importorskip("cv2")
 from sightline.imaging import encode_jpeg  # noqa: E402  (after importorskip)
 
 
-def test_obstacle_classes_is_the_union():
-    expected = {
-        "person", "chair", "bicycle", "car", "motorcycle", "bus", "truck", "dog",
-        "potted plant", "couch", "dining table", "bench", "tv", "refrigerator",
-        "fire hydrant",
-    }
-    assert set(OBSTACLE_CLASSES) == expected
+def test_obstacle_classes():
+    # A frozenset of lowercase names spanning the COCO and Open Images
+    # vocabularies. Assert the invariants and the must-have core rather than an
+    # exact list, so adding an obstacle class does not break the test.
     assert isinstance(OBSTACLE_CLASSES, frozenset)
+    assert all(c == c.lower() for c in OBSTACLE_CLASSES)
+    core = {"person", "chair", "table", "car", "bicycle", "dog",
+            "door", "stairs", "couch", "tv"}
+    assert core <= set(OBSTACLE_CLASSES)
+    assert len(OBSTACLE_CLASSES) >= 25
 
 
 def test_encode_jpeg_returns_base64_jpeg():

@@ -6,3 +6,8 @@ known_faces/*.png
 models/*.tflite
 /etc/sightline.env
 .pytest_cache/
+plans/*
+
+# Auto-downloaded YOLO model weights (re-fetched on first run)
+yolov8*.pt
+weights/

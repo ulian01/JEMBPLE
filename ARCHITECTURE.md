@@ -30,7 +30,7 @@ Notes that shaped the design:
 
 - The Pi 5 dropped the analog audio jack. Audio goes out over USB, an I2S HAT, or Bluetooth. All audio code targets an ALSA device name (speech.audio_device) rather than assuming a jack.
 - Bone-conduction output is the recommended transducer because it preserves environmental hearing, which is a safety requirement for this user group.
-- No GPU or NPU by default. CPU TFLite gives a few frames per second at low resolution, which is adequate at walking speed. The optional Hailo-8L AI Kit is the upgrade path for higher frame rates.
+- No GPU or NPU by default. Detection runs on the CPU at a few frames per second, which is adequate at walking speed; a small inference size and the threaded detector keep the loop responsive. The optional Hailo-8L AI Kit is the upgrade path for higher frame rates.
 
 ## 3. Software architecture
 
@@ -54,7 +54,7 @@ A thin shared library (sightline/) provides reusable services. Each capability i
 - Speaker drains a priority queue on a background thread, so the vision loop never blocks on audio. Piper is preferred for natural speech, eSpeak-NG is the zero-setup fallback, and a plain print path keeps a dev box observable. High-priority utterances flush the queue so a safety warning is heard first. The speaker is thread-safe: rendering is serialised and the running audio process is guarded, so a wake-word barge-in from another thread reliably stops the current utterance and two voices never overlap.
 - AudioCues synthesises short stereo tones. Horizontal position maps to stereo pan, and proximity maps to pitch and pip count. This is the fast, pre-attentive channel that tells you where and how urgent without using words.
 - Announcer turns a detection box into a spoken phrase and enforces repeat-suppression and a confidence floor, so the device informs rather than chatters. Direction comes from the box centre, and a rough distance comes from the box height. It also owns OBSTACLE_CLASSES, the single shared list of object classes worth warning about.
-- Detector runs object detection behind one detect() interface. TFLite SSD-MobileNet is the Pi default, Ultralytics YOLO is the easy path on a laptop, and a Hailo backend stub slots in behind the same interface for the AI Kit.
+- Detector runs object detection behind one detect() interface. Both profiles default to Ultralytics YOLO with an Open Images model, so out of the box the device names roughly 600 object classes rather than the 80 in COCO: a nano model on the Pi for a light footprint, a small model on the laptop for more accuracy. It takes any YOLO model, and can also run in open-vocabulary mode (YOLO-World) where you name the classes to detect. Labels are normalised to lowercase so one obstacle list and one set of phrasing rules work across every model. A ThreadedDetector wrapper runs inference on a background thread so a heavier model does not stall the camera loop, and imgsz trades resolution for speed. TFLite SSD-MobileNet remains a lighter on-device option (80 COCO classes, no torch), and a Hailo backend stub slots in behind the same interface for the AI Kit.
 - FaceIdentifier, OcrReader, SceneDescriber, and VisionAssistant cover faces, text, scene description, and the on-demand vision questions (money, label, translate, expression). The three vision callers share one JPEG encoder in imaging.py, which downscales the frame before upload to save tokens and bandwidth.
 - VoiceCommands (listen.py) does offline wake-word and command recognition with Vosk and a constrained grammar.
 
@@ -72,7 +72,7 @@ main.py adapts to how it is launched. With a terminal it reads single keypresses
 
 | Capability | Placement | Reason |
 | --- | --- | --- |
-| Object detection | On device | Continuous, needs low latency, must work offline, and keeps imagery local. CPU TFLite is enough at walking pace. |
+| Object detection | On device | Continuous, needs low latency, must work offline, and keeps imagery local. A CPU YOLO model (or TFLite for a lighter footprint) is enough at walking pace. |
 | Obstacle alerts | On device | Safety critical. A cloud round trip is too slow. |
 | Face recognition | On device | Continuous and privacy-sensitive. Biometrics never leave the device. |
 | OCR | On device or cloud | Tesseract and EasyOCR run offline. Claude vision is used when a key is set, because it is far more accurate on real-world signs and labels. |

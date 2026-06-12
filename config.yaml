@@ -29,11 +29,19 @@ announcer:
   min_confidence: 0.55
 
 object_detection:
-  backend: tflite       # tflite | hailo (needs the Pi AI Kit)
-  model: models/ssd_mobilenet_v2_coco_quant.tflite
-  labels: models/coco_labels.txt
-  threshold: 0.5
+  # Backends: ultralytics (YOLO) | tflite (SSD-MobileNet) | hailo (Pi AI Kit).
+  # Default is YOLO with the nano Open Images model: about 600 object classes
+  # from a 7 MB auto-download. Needs: pip install ultralytics
+  backend: ultralytics
+  ultralytics_model: yolov8n-oiv7.pt   # nano Open Images V7, ~600 classes
+  imgsz: 416            # inference size; lower is faster on the Pi CPU (try 320)
+  threaded: true        # run detection off the camera loop so it stays responsive
+  threshold: 0.4
   announce_classes: []  # [] = announce everything; or e.g. [person, chair, door]
+  # Lighter alternative (no torch): 80 COCO classes via TFLite. To use it, set
+  # backend to tflite and download the model (see models/README.md):
+  #   model: models/ssd_mobilenet_v2_coco_quant.tflite
+  #   labels: models/coco_labels.txt
 
 faces:
   known_dir: known_faces

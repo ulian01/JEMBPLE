@@ -24,9 +24,15 @@ speech:
   rate_wpm: 200                 # used only if you fall back to espeak
 
 object_detection:
-  backend: ultralytics       # pip install ultralytics; downloads yolov8n.pt once
-  ultralytics_model: yolov8n.pt
-  threshold: 0.5
+  backend: ultralytics       # pip install ultralytics; downloads weights once
+  ultralytics_model: yolov8s-oiv7.pt   # Open Images V7, ~600 classes (lots of objects)
+  imgsz: 512                 # inference size; lower = faster (416 ~2-3x faster than 640)
+  threaded: true             # run detection off the camera loop so the preview stays smooth
+  threshold: 0.4
+  # Open vocabulary instead: detect exactly the classes you name (YOLO-World).
+  # Uncomment and list any objects; this overrides ultralytics_model.
+  # open_vocab: [backpack, mug, keyboard, laptop, phone, keys, wallet, remote, door handle, power outlet]
+  # world_model: yolov8s-world.pt
 
 faces:
   model: hog         # CPU; fine on a laptop
