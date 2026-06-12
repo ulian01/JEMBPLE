@@ -36,8 +36,9 @@ from sightline.camera import Camera
 from sightline.speech import Speaker
 from sightline.audio_cues import AudioCues
 from sightline.announcer import pan_from_cx, estimate_distance_m, horizontal_phrase, OBSTACLE_CLASSES
-from sightline.viz import CaptureWindow, draw_detections
+from sightline.viz import CaptureWindow, NullWindow, draw_detections
 from sightline import detector
+from sightline.bluetooth import BluetoothManager
 
 WARN_HEIGHT = 0.30
 
@@ -72,6 +73,12 @@ def chunk_text(text: str, n: int) -> list[str]:
     return chunks
 
 
+def _has_display() -> bool:
+    """True if a GUI display is available (X11 or Wayland). On a headless Pi both
+    are unset, so the app skips the preview window and runs voice-only."""
+    return bool(os.environ.get("DISPLAY") or os.environ.get("WAYLAND_DISPLAY"))
+
+
 class App:
     def __init__(self, cfg: dict):
         self.cfg = cfg
@@ -86,14 +93,23 @@ class App:
         self.detect_interval = max(1, int(cfg["app"]["detect_interval"]))
         self.read_chunk_chars = int(cfg["app"].get("read_chunk_chars", 240))
 
-        self.win = CaptureWindow("Sightline", buttons=[
-            ("TEXT", "text", [ord("t")]),
-            ("DESCRIBE", "describe", [ord("d")]),
-            ("FACE", "face", [ord("f")]),
-            ("DISTANCE", "distance", [ord("b")]),
-            ("HELP", "help", [ord("h")]),
-        ])
+        # Headless: no preview window at all (the wearable build has no screen).
+        # Enabled explicitly via app.headless, or automatically when there's no
+        # display (DISPLAY/WAYLAND_DISPLAY unset), so the on-strap Pi just works.
+        self.headless = bool(cfg["app"].get("headless", False)) or not _has_display()
+        if self.headless:
+            print("Display: headless (voice and buttons only, no preview window).")
+            self.win = NullWindow()
+        else:
+            self.win = CaptureWindow("Sightline", buttons=[
+                ("TEXT", "text", [ord("t")]),
+                ("DESCRIBE", "describe", [ord("d")]),
+                ("FACE", "face", [ord("f")]),
+                ("DISTANCE", "distance", [ord("b")]),
+                ("HELP", "help", [ord("h")]),
+            ])
 
+        self.bt = BluetoothManager(cfg.get("bluetooth")).start()
         self.det = detector.build(cfg["object_detection"])
         model = cfg["scene"]["model"]
         self.ocr = self._try("OCR", lambda: __import__(
@@ -221,14 +237,15 @@ class App:
         self._last_response = "Spelling " + src
         self.speaker.say_blocking(", ".join(letters))
 
-    def cmd_describe(self, frame):
+    def cmd_describe(self, frame, subject=None):
         if self.describer is None:
             self.respond("Scene description is unavailable."); return
-        self.win.set_status("Describing…"); self.win.show(frame)
-        self.speaker.say("Looking.")
+        status = f"Describing {subject}…" if subject else "Describing…"
+        self.win.set_status(status); self.win.show(frame)
+        self.speaker.say(f"Looking at the {subject}." if subject else "Looking.")
         try:
             full = self.describer.describe(
-                frame, speaker=self.speaker,
+                frame, speaker=self.speaker, subject=subject,
                 on_update=lambda t: (self.win.set_text(t), self.win.show(frame)))
             self._last_response = full
         except Exception as e:
@@ -340,12 +357,34 @@ class App:
         self.beeps = not self.beeps
         self.speaker.say_blocking("Distance on." if self.beeps else "Distance off.")
 
+    def _capture_subject(self, frame):
+        """Ask what to focus on and capture a short spoken phrase. Returns the
+        subject (e.g. "usb cable") or None to fall back to a whole-scene describe.
+        Voice only; needs the recogniser's free-dictation capture."""
+        if self.voice is None:
+            return None
+        self.speaker.say_blocking("Describe what? Say it after the tone, or wait.")
+        self.cues.chime()
+        phrase = self.voice.capture_phrase(timeout=4.0)
+        return phrase.strip() if phrase else None
+
     # -- dispatch ---------------------------------------------------------
     def dispatch(self, action, frame, source="voice"):
         if action == "stop":
             self.speaker.interrupt(); return
         if source == "button":
             self.cues.ping()
+        # "describe" can take a spoken subject ("SIGHT describe usb cable") to
+        # focus on one thing. Capture it by voice; a button press describes the
+        # whole scene as before.
+        if action == "describe" and source == "voice":
+            try:
+                subject = self._capture_subject(frame)
+                self.cmd_describe(frame, subject=subject)
+            except Exception as e:
+                print(f"cmd describe error: {e}", file=sys.stderr)
+            self.win.set_status(self._idle_status)
+            return
         method = getattr(self, f"cmd_{action}", None)
         if method:
             try:
@@ -409,6 +448,7 @@ class App:
         finally:
             if self.voice:
                 self.voice.stop()
+            self.bt.stop()
             self.win.close()
             self.speaker.say_blocking("Goodbye.")
             self.speaker.close()

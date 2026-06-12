@@ -118,7 +118,7 @@ The core logic has a pytest suite that needs no camera and no network:
 .venv/bin/python -m pytest
 ```
 
-It covers the announcement phrasing and throttling, config merging, the spatial-audio tone generator, the headless startup path, the thread-safe speaker, and the shared image encoder.
+It covers the announcement phrasing and throttling, config merging, the spatial-audio tone generator, the headless startup path, the thread-safe speaker, the shared image encoder, the focused describe sub-command, and the Bluetooth manager.
 
 ## Layout
 

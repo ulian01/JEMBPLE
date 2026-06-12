@@ -99,6 +99,12 @@ DEFAULTS: dict[str, Any] = {
         "beep_volume": 0.25,        # low + quiet so it sits under speech
         "announce_objects": False,  # also speak newly-seen objects (can be chatty)
         "read_chunk_chars": 240,    # long-read page size — "SIGHT next" advances
+        "headless": False,          # no preview window (auto-on when no display)
+    },
+    "bluetooth": {
+        "enabled": False,           # poll and auto-reconnect a Bluetooth headset
+        "mac": "",                  # device address, e.g. AA:BB:CC:DD:EE:FF (pair once first)
+        "poll_interval": 15.0,      # seconds between reconnect attempts
     },
 }
 

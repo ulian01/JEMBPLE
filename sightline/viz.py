@@ -173,3 +173,25 @@ class CaptureWindow:
                 cv2.destroyWindow(self.title)
             except cv2.error:
                 pass
+
+
+class NullWindow:
+    """A no-op stand-in for CaptureWindow used in headless mode (no screen).
+
+    It implements the same interface so the app loop and the command handlers run
+    unchanged, but it draws nothing and never reports a button press. In headless
+    mode the device is driven by voice (and any GPIO buttons) instead of the
+    on-screen buttons.
+    """
+
+    def set_status(self, text: str = "") -> None:
+        pass
+
+    def set_text(self, text: str) -> None:
+        pass
+
+    def show(self, frame) -> str:
+        return ""
+
+    def close(self) -> None:
+        pass

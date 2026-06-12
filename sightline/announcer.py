@@ -22,24 +22,49 @@ from dataclasses import dataclass
 # list spans both vocabularies (COCO's 80 classes and the larger Open Images
 # set), so entries that a given model never emits simply never fire.
 OBSTACLE_CLASSES = frozenset({
-    # people and animals
-    "person", "man", "woman", "boy", "girl", "dog", "cat", "horse",
-    # seating and furniture
-    "chair", "stool", "bench", "couch", "sofa bed", "bed", "loveseat",
-    "table", "desk", "dining table", "coffee table", "kitchen & dining room table",
-    "cabinetry", "wardrobe", "cupboard", "bookcase", "nightstand", "drawer",
-    "shelf", "filing cabinet",
-    # appliances and large fixtures
-    "tv", "television", "refrigerator", "oven", "washing machine",
-    "dishwasher", "wood-burning stove",
+    # people
+    "person", "man", "woman", "boy", "girl",
+    # common domestic animals
+    "dog", "cat", "horse", "cow", "cattle", "sheep", "goat", "pig",
+    "rabbit", "duck", "chicken", "turkey",
+    # large / wild animals (zoo, farm, outdoor)
+    "elephant", "bear", "lion", "tiger", "giraffe", "zebra", "camel",
+    "kangaroo", "deer", "alpaca", "donkey",
+    # seating
+    "chair", "armchair", "stool", "bar stool", "bench", "ottoman",
+    "couch", "sofa", "sofa bed", "loveseat", "bed", "bunk bed", "crib",
+    # tables and desks
+    "table", "desk", "dining table", "coffee table",
+    "kitchen & dining room table", "countertop",
+    # storage and case furniture
+    "cabinetry", "wardrobe", "cupboard", "bookcase", "bookshelf",
+    "nightstand", "drawer", "chest of drawers", "shelf",
+    "filing cabinet", "sideboard", "television cabinet",
+    # large appliances
+    "tv", "television", "refrigerator", "oven", "washing machine", "dryer",
+    "dishwasher", "wood-burning stove", "chest freezer",
     # openings and level changes
-    "door", "stairs",
+    "door", "gate", "stairs", "escalator", "ladder", "ramp",
+    # structural elements
+    "column", "pillar", "bollard", "barrier", "fence", "wall",
     # plants
     "potted plant", "houseplant", "tree", "plant",
-    # vehicles and street furniture
-    "bicycle", "car", "motorcycle", "bus", "truck", "train", "van",
-    "fire hydrant", "street light", "traffic light", "parking meter",
-    "stop sign", "pole",
+    # indoor large objects and mobility aids
+    "wheelchair", "baby carriage", "stroller", "walker",
+    "shopping cart", "cart", "trolley",
+    "suitcase", "luggage", "bag",
+    "barrel", "crate", "bin", "waste container", "trash can",
+    "box", "pallet",
+    # fitness and large indoor equipment
+    "treadmill", "stationary bicycle", "exercise equipment",
+    "ironing board", "vacuum cleaner", "piano", "organ",
+    # vehicles
+    "bicycle", "scooter", "moped", "motorcycle", "car", "van",
+    "bus", "truck", "train", "ambulance", "fire truck",
+    "tractor", "forklift", "golf cart",
+    # street furniture
+    "fire hydrant", "street light", "traffic light",
+    "parking meter", "stop sign", "pole", "signage",
 })
 
 

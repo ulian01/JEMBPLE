@@ -45,7 +45,7 @@ A thin shared library (sightline/) provides reusable services. Each capability i
                              |
                  shared services (sightline/)
    Camera   Speaker   AudioCues   Announcer   Detector   FaceIdentifier
-   OcrReader   SceneDescriber   VisionAssistant   VoiceCommands
+   OcrReader   SceneDescriber   VisionAssistant   VoiceCommands   BluetoothManager
 ```
 
 ### Shared services
@@ -57,10 +57,15 @@ A thin shared library (sightline/) provides reusable services. Each capability i
 - Detector runs object detection behind one detect() interface. Both profiles default to Ultralytics YOLO with an Open Images model, so out of the box the device names roughly 600 object classes rather than the 80 in COCO: a nano model on the Pi for a light footprint, a small model on the laptop for more accuracy. It takes any YOLO model, and can also run in open-vocabulary mode (YOLO-World) where you name the classes to detect. Labels are normalised to lowercase so one obstacle list and one set of phrasing rules work across every model. A ThreadedDetector wrapper runs inference on a background thread so a heavier model does not stall the camera loop, and imgsz trades resolution for speed. TFLite SSD-MobileNet remains a lighter on-device option (80 COCO classes, no torch), and a Hailo backend stub slots in behind the same interface for the AI Kit.
 - FaceIdentifier, OcrReader, SceneDescriber, and VisionAssistant cover faces, text, scene description, and the on-demand vision questions (money, label, translate, expression). The three vision callers share one JPEG encoder in imaging.py, which downscales the frame before upload to save tokens and bandwidth.
 - VoiceCommands (listen.py) does offline wake-word and command recognition with Vosk and a constrained grammar.
+- BluetoothManager (bluetooth.py) polls bluetoothctl on a background thread and reconnects a configured headset whenever it drops. It is inactive when disabled or when no MAC is set, so it adds no overhead on a wired build. The Pi only needs the headset paired once; after that, Sightline keeps the connection up automatically.
 
 ### The voice assistant (app.py)
 
 This is the production path. One loop reads frames, runs object detection every few frames, and emits optional proximity beeps. In parallel, a Vosk thread listens for "sight" plus a command and pushes recognised commands onto a queue that the loop polls. Commands fall into two groups. Quick ones answer from local state or a single capture. On-demand ones (text, describe, the vision questions) take a frame and call a capability. The instant the wake word is heard, a callback interrupts any current speech and plays a short chime, so the user gets immediate confirmation and can talk over the device. A preview window with clickable buttons and keyboard keys mirrors the main commands as a no-voice fallback.
+
+When no display is found at startup (DISPLAY and WAYLAND_DISPLAY are both unset, as on the Pi under systemd), app.py switches to a NullWindow that satisfies the same interface but does nothing, so the rest of the code is unchanged. This is headless mode, and it is automatic.
+
+The describe command accepts a subject name. When a subject is given, the app captures a short spoken phrase from the user and passes it to SceneDescriber.describe(subject=...), which switches to a subject-focused system prompt and a higher token budget so the response covers colour, texture, shape, markings, and context rather than the whole scene.
 
 ### The button controller (main.py)
 

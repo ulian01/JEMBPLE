@@ -1,4 +1,3 @@
-- [] Add sub command to describe command - e.g "Sight describe usb cable" focuses on usb cable and describes it more in detail.
-- [] No UI mode - for running headless, raspi.
-    - [] Bluetooth polling, polls to connect to configured headset via system's bluetooth, if disconnects, periodically checks if device is available and connects.
-- 
+- [x] Add sub command to describe command - e.g "Sight describe usb cable" focuses on usb cable and describes it more in detail.
+- [x] No UI mode - for running headless, raspi.
+    - [x] Bluetooth polling, polls to connect to configured headset via system's bluetooth, if disconnects, periodically checks if device is available and connects.

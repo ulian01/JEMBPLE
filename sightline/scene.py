@@ -37,6 +37,15 @@ _FULL_SYSTEM = (
     "with only the description — no preamble, no 'I see', no markdown, no lists."
 )
 
+_SUBJECT_SYSTEM = (
+    "You are the eyes of a blind person. They have asked about one specific thing "
+    "in view. Describe just that thing in clear, spoken language: what it is, its "
+    "colour and condition, any text, labels, or markings on it, and anything "
+    "practically useful such as which way it faces, how to open or use it, or "
+    "whether it is plugged in or switched on. Two to four short sentences. If you "
+    "cannot find it, say so in one short sentence. No preamble, no markdown."
+)
+
 
 class SceneDescriber:
     def __init__(self, scene_cfg: dict):
@@ -54,27 +63,42 @@ class SceneDescriber:
     def _system(self) -> str:
         return _SUCCINCT_SYSTEM if self.style == "succinct" else _FULL_SYSTEM
 
-    def describe(self, frame_bgr, speaker=None, on_update=None) -> str:
+    def describe(self, frame_bgr, speaker=None, on_update=None, subject=None) -> str:
         """Stream the description text to the GUI, then speak it once.
+
+        With ``subject`` set (for example "usb cable"), focus on that one thing
+        and describe it in more detail instead of summarising the whole scene.
 
         We stream for the *visual* update (``on_update(full_text_so_far)``) but
         speak the whole result as a single utterance — speaking per-sentence
         would spawn a fresh TTS process at every full stop, which is the real
         source of long pauses on periods. Returns the full text.
         """
+        subject = (subject or "").strip()
+        if subject:
+            system = _SUBJECT_SYSTEM
+            user_text = (
+                f"Focus on the {subject} in the image and describe it in detail. "
+                f"If there is no {subject} in view, say so in one short sentence."
+            )
+            max_tokens = max(self.max_tokens, 300)   # room for a detailed answer
+        else:
+            system = self._system()
+            user_text = "Describe what is in front of me."
+            max_tokens = self.max_tokens
         img_b64 = encode_jpeg(frame_bgr, self.max_edge)
         full = ""
         with self.client.messages.stream(
             model=self.model,
-            max_tokens=self.max_tokens,
+            max_tokens=max_tokens,
             thinking={"type": "disabled"},
-            system=self._system(),
+            system=system,
             messages=[{
                 "role": "user",
                 "content": [
                     {"type": "image", "source": {
                         "type": "base64", "media_type": "image/jpeg", "data": img_b64}},
-                    {"type": "text", "text": "Describe what is in front of me."},
+                    {"type": "text", "text": user_text},
                 ],
             }],
         ) as stream:

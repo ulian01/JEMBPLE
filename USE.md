@@ -38,7 +38,7 @@ Reading and the world around you:
 
 Scene and people:
 
-- describe (scene): gives you a short spoken description of the whole scene in front of you, leading with what matters most.
+- describe (scene): gives you a short spoken description of the whole scene in front of you, leading with what matters most. You can focus on a specific thing by adding its name after the command. For example, say "sight describe usb cable" and it will ask you to say what to focus on (you say "usb cable" after the tone), then give a detailed description of just that object rather than the whole scene.
 - face (identify): tells you who the nearest person is, if you have enrolled them. If it does not know them, it says so.
 - who (everyone): lists the people it can see, and how many it does not recognise.
 - remember (save): enrols the person in front of you so it can name them later. It asks for their name, you say the name after the tone, and it saves them straight away.
@@ -96,6 +96,23 @@ Voice is the main way in, but everything has a fallback, which is also handy for
 In the voice app window there are on-screen buttons and matching keyboard keys: TEXT (t), DESCRIBE (d), FACE (f), DISTANCE (b), HELP (h), and QUIT (q). These do the same thing as the spoken commands.
 
 There is also a simpler two-button controller, main.py, for a build that has no voice model installed. It runs one capability at a time. One button, MODE, steps through the capabilities and says each one as you reach it: object detection, face recognition, obstacle alerts, text reader, then scene describer. The other button, ACTION, takes a single reading in the two on-demand modes (text reader and scene describer). On a keyboard these are m for mode, a for action, and q to quit. On the strap, MODE is the button on GPIO 17 and ACTION is the button on GPIO 27.
+
+## Running without a screen (headless mode)
+
+When the device starts without a display (for example under systemd on the Pi, or over SSH with no graphical session), it automatically skips the preview window. Everything else works the same. You drive it with voice, buttons, or the keyboard over SSH.
+
+## Bluetooth headset auto-reconnect
+
+If you configure a Bluetooth MAC address in config.yaml, the device will periodically check whether the headset is connected and reconnect it automatically if it has dropped. The headset must already be paired with the Pi once (using `bluetoothctl pair AA:BB:CC:DD:EE:FF`). After that, Sightline keeps the connection up in the background and you do not need to do anything.
+
+To enable this, add the following to config.yaml:
+
+```yaml
+bluetooth:
+  enabled: true
+  mac: AA:BB:CC:DD:EE:FF   # replace with your headset address
+  poll_interval: 15.0       # seconds between reconnect attempts
+```
 
 ## If something is not working
 
