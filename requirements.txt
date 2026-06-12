@@ -1,0 +1,34 @@
+# Core (all demos)
+numpy
+opencv-python            # on Pi OS, prefer: sudo apt install python3-opencv
+PyYAML
+sounddevice              # low-latency spatial audio (optional; falls back to aplay)
+
+# Camera — Raspberry Pi only (install via apt, not pip):
+#   sudo apt install -y python3-picamera2
+# On a dev laptop the OpenCV webcam fallback is used instead.
+
+# Demo 1 & 5 — object / obstacle detection
+# Pick ONE backend:
+tflite-runtime           # Pi: slim TFLite interpreter (needs the COCO model file)
+# ultralytics            # Laptop/x86: YOLO, auto-downloads weights, no model setup
+
+# Demo 2 — face recognition
+face_recognition         # pulls in dlib; on Pi: sudo apt install -y cmake first
+
+# Demo 3 — text reader (OCR). Best-first; install at least one:
+#   anthropic            # claude vision OCR — most accurate (set ANTHROPIC_API_KEY)
+#   easyocr              # offline deep-learning OCR (no API; pulls torch)
+pytesseract              # offline fallback; also: sudo apt install -y tesseract-ocr
+
+# Demo 4 — scene describer (off-device VLM)
+anthropic
+
+# Production app (app.py) — offline voice commands ("SIGHT text/describe/face")
+vosk                     # offline streaming STT; also: tools/install_voice.sh
+# sounddevice is listed above (also used for mic capture)
+psutil                   # "SIGHT battery" status (optional; sysfs fallback otherwise)
+pyzbar                   # "SIGHT barcode" — needs system lib: sudo apt install libzbar0
+
+# Optional — physical buttons on the arm strap
+gpiozero

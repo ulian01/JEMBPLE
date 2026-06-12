@@ -1,0 +1,52 @@
+# Laptop / desktop profile — run Sightline on your LMDE machine with the webcam.
+# Use it with:
+#     SIGHTLINE_CONFIG=config.laptop.yaml python3 main.py
+#     SIGHTLINE_CONFIG=config.laptop.yaml python3 demos/01_object_detector.py
+#
+# Differences from the Pi build: webcam instead of Pi Camera, a visible preview
+# window (you can see it), and the YOLO detector that auto-downloads its weights
+# so there's no TFLite/model setup.
+
+camera:
+  source: 0          # webcam index; or a path to a video / image to test against
+  width: 1280        # higher res = much better OCR / text reading
+  height: 720
+
+display:
+  preview: true      # show an annotated window; press 'q' in it to quit
+
+speech:
+  engine: piper
+  piper_model: /home/mae/piper_voices/en_GB-alba-medium.onnx
+  piper_length_scale: 0.65      # speed — LOWER is faster (1.0 normal, try 0.8 for snappier)
+  piper_sentence_silence: 0.0   # extra silence after each sentence (seconds)
+  period_pause: comma           # make '.' pause like a comma (short), not a full stop
+  rate_wpm: 200                 # used only if you fall back to espeak
+
+object_detection:
+  backend: ultralytics       # pip install ultralytics; downloads yolov8n.pt once
+  ultralytics_model: yolov8n.pt
+  threshold: 0.5
+
+faces:
+  model: hog         # CPU; fine on a laptop
+
+scene:
+  model: claude-haiku-4-5     # cheap + accurate enough for terse descriptions
+  style: succinct             # succinct (Newspeak-style fragments) | full (sentences)
+  max_tokens: 400
+
+ocr:
+  backend: auto      # uses claude (vision) when ANTHROPIC_API_KEY is set — most accurate
+  model: claude-haiku-4-5     # claude-haiku-4-5 is faster/cheaper and still very good at OCR
+
+# Production app (app.py) — wake-word voice control
+voice:
+  enabled: true
+  model: /home/mae/vosk_models/vosk-model-small-en-us-0.15   # run tools/install_voice.sh
+  wakeword: sight
+
+app:
+  detect_interval: 2   # run object detection every Nth frame
+  beeps: false         # distance proximity beeps — off until you say "SIGHT distance"
+  beep_volume: 0.25    # low + quiet (0.0–1.0)

@@ -1,0 +1,69 @@
+# Sightline configuration. Every value here overrides a built-in default
+# (see sightline/config.py). Delete keys you don't need — defaults fill in.
+
+camera:
+  width: 640
+  height: 480
+  fps: 15
+  rotation: 0          # rotate frames if the camera sits sideways on the strap
+  hflip: false
+  vflip: false
+
+speech:
+  engine: auto         # auto | piper | espeak
+  piper_model: ""      # e.g. /home/mae/piper_voices/en_GB-alba-medium.onnx for natural TTS
+  rate_wpm: 190        # espeak speaking rate (higher = faster)
+  piper_length_scale: 0.9       # piper speed: LOWER = faster (1.0 normal, 0.8 snappy)
+  piper_sentence_silence: 0.05  # piper pause (seconds) after each sentence; 0 = none
+  period_pause: normal          # normal | comma ('.' pauses like a comma) | none
+  audio_device: default  # ALSA device: `aplay -L` to list (USB / Bluetooth / HAT)
+  volume: 1.0
+
+audio_cues:
+  enabled: true
+  sample_rate: 22050
+  max_distance_m: 4.0
+
+announcer:
+  repeat_suppress_s: 6.0
+  min_confidence: 0.55
+
+object_detection:
+  backend: tflite       # tflite | hailo (needs the Pi AI Kit)
+  model: models/ssd_mobilenet_v2_coco_quant.tflite
+  labels: models/coco_labels.txt
+  threshold: 0.5
+  announce_classes: []  # [] = announce everything; or e.g. [person, chair, door]
+
+faces:
+  known_dir: known_faces
+  tolerance: 0.6        # lower is stricter
+  model: hog            # hog (fast, CPU) | cnn (accurate, slow)
+
+ocr:
+  backend: auto       # auto | claude (most accurate, needs API key) | easyocr | tesseract
+  model: claude-opus-4-8   # claude backend model; haiku/sonnet = faster & cheaper
+  lang: eng
+  min_chars: 2
+
+scene:
+  model: claude-opus-4-8   # or claude-sonnet-4-6 / claude-haiku-4-5 for lower latency & cost
+  style: succinct          # succinct (terse fragments, cheap) | full (2-4 sentences)
+  max_tokens: 400
+  max_image_edge: 1024
+
+buttons:
+  enabled: false        # set true once GPIO push-buttons are wired
+  mode_pin: 17
+  action_pin: 27
+
+# Production app (app.py)
+voice:
+  enabled: true
+  model: ""             # path to a Vosk model dir (tools/install_voice.sh); empty => buttons only
+  wakeword: sight
+
+app:
+  detect_interval: 2    # run object detection every Nth frame
+  beeps: false          # distance proximity beeps — off until you say "SIGHT distance"
+  beep_volume: 0.25     # low + quiet (0.0–1.0)

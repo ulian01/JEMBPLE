@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+.venv/
+known_faces/*.jpg
+known_faces/*.png
+models/*.tflite
+/etc/sightline.env
+.pytest_cache/

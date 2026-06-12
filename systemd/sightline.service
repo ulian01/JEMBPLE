@@ -1,0 +1,28 @@
+# Autostart Sightline on boot so the device works headless on the arm strap.
+#
+# Install:
+#   sudo cp systemd/sightline.service /etc/systemd/system/
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now sightline
+#
+# Note: main.py's keyboard control needs a TTY; under systemd you'll drive it via
+# the GPIO buttons (set buttons.enabled: true in config.yaml). For a button-only
+# build you can also point ExecStart straight at a single demo.
+
+[Unit]
+Description=Sightline assistive vision
+After=multi-user.target
+
+[Service]
+Type=simple
+User=mae
+WorkingDirectory=/home/mae/Documents/Projects/git/sightline
+Environment=PYTHONUNBUFFERED=1
+# Put your key in /etc/sightline.env as ANTHROPIC_API_KEY=... (chmod 600)
+EnvironmentFile=-/etc/sightline.env
+ExecStart=/usr/bin/python3 /home/mae/Documents/Projects/git/sightline/main.py
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target
