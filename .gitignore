@@ -11,3 +11,6 @@ plans/*
 # Auto-downloaded YOLO model weights (re-fetched on first run)
 yolov8*.pt
 weights/
+
+# Ignore Claude session transcripts
+2026-06-16-114732-this-session-is-being-continued-from-a-previous-c.txt

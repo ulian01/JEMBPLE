@@ -73,9 +73,12 @@ class Camera:
                 hflip=bool(self.cfg.get("hflip", False)),
                 vflip=bool(self.cfg.get("vflip", False)),
             )
+            fps = int(self.cfg.get("fps", 30))
+            frame_us = int(1_000_000 / fps)
             config = self._picam.create_preview_configuration(
                 main={"size": (self.width, self.height), "format": "RGB888"},
                 transform=transform,
+                controls={"FrameDurationLimits": (frame_us, frame_us)},
             )
             self._picam.configure(config)
             self._picam.start()
@@ -107,8 +110,7 @@ class Camera:
     def read(self) -> np.ndarray:
         """Grab one frame as a BGR uint8 array, applying configured rotation."""
         if self._picam is not None:
-            rgb = self._picam.capture_array()        # RGB888
-            frame = cv2.cvtColor(rgb, cv2.COLOR_RGB2BGR)
+            frame = self._picam.capture_array()      # RGB888 is BGR in memory
         elif self._still is not None:
             frame = self._still.copy()               # same still on every read
         elif self._cv is not None:
