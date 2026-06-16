@@ -14,10 +14,12 @@ user hears the urgent thing first.
 """
 from __future__ import annotations
 
+import os
 import queue
 import re
 import shutil
 import subprocess
+import sys
 import threading
 from dataclasses import dataclass, field
 from itertools import count
@@ -26,6 +28,22 @@ from itertools import count
 _SENTENCE_PUNCT = re.compile(r"\s*[.!?]+(\s+|$)")
 
 _counter = count()
+
+
+def _find_piper() -> str | None:
+    """Locate the piper CLI binary.
+
+    Checks ``PATH`` first, then the directory of the running interpreter —
+    ``pip install piper-tts`` drops the ``piper`` script into the venv's
+    ``bin/``, which is *not* on ``PATH`` when the app is launched as
+    ``.venv/bin/python app.py`` (no activation). Without this, piper is
+    silently rejected and TTS falls back to eSpeak.
+    """
+    found = shutil.which("piper")
+    if found:
+        return found
+    candidate = os.path.join(os.path.dirname(sys.executable), "piper")
+    return candidate if os.path.exists(candidate) else None
 
 
 @dataclass(order=True)
@@ -63,7 +81,8 @@ class Speaker:
     # -- engine selection -------------------------------------------------
     def _pick_engine(self, cfg: dict) -> str:
         requested = cfg.get("engine", "auto")
-        have_piper = bool(cfg.get("piper_model")) and shutil.which("piper") is not None
+        self.piper_bin = _find_piper()
+        have_piper = bool(cfg.get("piper_model")) and self.piper_bin is not None
         have_espeak = shutil.which("espeak-ng") or shutil.which("espeak")
         if requested == "piper" or (requested == "auto" and have_piper):
             if have_piper:
@@ -173,19 +192,28 @@ class Speaker:
         # length-scale = speed (lower is faster); sentence-silence = pause on '.'.
         model = self.cfg["piper_model"]
         piper = subprocess.Popen(
-            ["piper", "-m", model,
+            [self.piper_bin, "-m", model,
              "--length-scale", str(self.length_scale),
              "--sentence-silence", str(self.sentence_silence),
              "--volume", str(self.volume),
              "-f", "-"],
             stdin=subprocess.PIPE, stdout=subprocess.PIPE,
         )
+        # Capture aplay's stderr. When we interrupt speech (barge-in / "stop") we
+        # SIGTERM aplay mid-write, so it prints a harmless "Interrupted system
+        # call". Swallow that expected line but still surface real faults — e.g. a
+        # Bluetooth A2DP underrun shows up here as "Broken pipe".
         aplay = subprocess.Popen(
             ["aplay", "-D", self.device, "-q", "-"],
-            stdin=piper.stdout,
+            stdin=piper.stdout, stderr=subprocess.PIPE,
         )
         self._set_proc(aplay)
         piper.stdin.write(text.encode())
         piper.stdin.close()
-        aplay.wait()
+        _, err = aplay.communicate()
         piper.wait()
+        if err:
+            lines = [ln for ln in err.decode(errors="replace").splitlines()
+                     if "Interrupted system call" not in ln]
+            if lines:
+                sys.stderr.write("\n".join(lines) + "\n")

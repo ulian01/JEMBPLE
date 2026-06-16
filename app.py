@@ -341,7 +341,13 @@ class App:
         self.speaker.quieter(); self.speaker.say_blocking("Quieter.")
 
     def cmd_help(self, frame=None):
-        self.respond(HELP_TEXT)
+        self._last_response = HELP_TEXT
+        self.win.set_text(HELP_TEXT)
+        self.win.set_status(self._idle_status)
+        for sentence in HELP_TEXT.split(". "):
+            if sentence:
+                text = sentence if sentence.endswith(".") else sentence + "."
+                self.speaker.say(text)
 
     def cmd_battery(self, frame=None):
         from sightline.sysinfo import battery_phrase
@@ -396,6 +402,13 @@ class App:
     # -- continuous background --------------------------------------------
     def update_detections(self, frame):
         self._frame_idx += 1
+        # Don't run inference while speaking. Neural TTS (piper) is CPU-bound and,
+        # on the Pi's 4 cores, the always-on detector thread starves it enough that
+        # it can't feed aplay in real time — the Bluetooth A2DP buffer underruns and
+        # audio skips (worst on long scene descriptions). Beeps are already muted
+        # while speaking, so pausing detection here surfaces nothing the user loses.
+        if self.speaker.is_busy():
+            return self._detections
         if self._frame_idx % self.detect_interval == 0:
             try:
                 self._detections = self.det.detect(frame)

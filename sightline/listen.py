@@ -151,7 +151,8 @@ class VoiceCommands:
                     wake_fired = False
                 elif not wake_fired and self._on_wake is not None:
                     partial = json.loads(rec.PartialResult()).get("partial", "")
-                    if self.wakeword in partial.split():
+                    words = partial.split()
+                    if self.wakeword in words and len(words) > 1:
                         wake_fired = True
                         try:
                             self._on_wake()
