@@ -165,6 +165,7 @@ class App:
                 samplerate=int(vcfg.get("samplerate", 16000)),
                 device=vcfg.get("device"),
                 on_wake=self._on_wake,
+                is_muted=self.speaker.is_busy,
             ).start()
             print(f"Voice: listening for '{vcfg.get('wakeword','sight')} ...'")
             return v

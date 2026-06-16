@@ -45,7 +45,8 @@ _SYNONYMS = {
 
 class VoiceCommands:
     def __init__(self, model_path: str, wakeword: str = "sight",
-                 commands=None, samplerate: int = 16000, device=None, on_wake=None):
+                 commands=None, samplerate: int = 16000, device=None, on_wake=None,
+                 is_muted=None):
         try:
             import vosk
             import sounddevice  # noqa: F401  (imported for the clear error if missing)
@@ -64,6 +65,7 @@ class VoiceCommands:
         self.wakeword = wakeword.lower()
         self.commands = set(commands or {"text", "describe", "face", "stop"})
         self._on_wake = on_wake     # called once, the instant the wake word is heard
+        self._is_muted = is_muted   # callback to pause listening (e.g. while TTS plays)
 
         # Bias recognition to just the phrases we care about.
         words = sorted({self.wakeword} | self.commands | set(_SYNONYMS))
@@ -136,6 +138,12 @@ class VoiceCommands:
                     rec_free = self._vosk.KaldiRecognizer(self.model, self.samplerate)
                     wake_fired = False
                     capturing_prev = capturing
+
+                if self._is_muted is not None and self._is_muted():
+                    # Drain the queue so audio doesn't lag when unmuted, but
+                    # do not process it. This prevents the mic from picking up
+                    # the speaker's TTS output and triggering false commands.
+                    continue
 
                 if capturing:
                     # free dictation: grab the next whole utterance as a phrase
