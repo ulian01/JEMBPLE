@@ -68,7 +68,7 @@ buttons:
 # Production app (app.py)
 voice:
   enabled: true
-  model: ""             # path to a Vosk model dir (tools/install_voice.sh); empty => buttons only
+  model: /home/mae/vosk_models/vosk-model-small-en-us-0.15   # Vosk model dir; empty => buttons only
   wakeword: sight
 
 app:
